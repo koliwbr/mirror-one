@@ -1,0 +1,55 @@
+<div id="div" style="font-size:380px">JS jest wymagany do dzia³ania zegraka</div>
+<script> 
+let clock = () => {
+  let date = new Date();
+  let hrs = date.getHours();
+  let mins = date.getMinutes();
+  let secs = date.getSeconds();
+  let minsecs = date.getMilliseconds();
+
+
+ hrs = 21-hrs;
+mins = 37- mins;
+secs = 0 - secs;
+minsecs = 0-minsecs;
+
+//if (minsecs<0) {}
+secs--;
+minsecs = minsecs+1000
+
+if (secs<0){
+mins--;
+secs = secs+60
+}
+
+if (mins<0){
+hrs--;
+mins = mins+60
+}
+if (hrs<0){
+hrs = hrs+24
+}
+var pap = ""; 
+
+if (secs+mins+hrs==0){
+pap = '<img scr="https://static.wikia.nocookie.net/chrzescijanstwopedia/images/a/aa/JPII.jpg/revision/latest" alt="JPII">';
+}
+
+  hrs = hrs < 10 ? "0" + hrs : hrs;
+  mins = mins < 10 ? "0" + mins : mins;
+  secs = secs < 10 ? "0" + secs : secs;
+minsecs = minsecs < 100 ? "0" + minsecs : minsecs;
+minsecs = minsecs < 10 ? "0" + minsecs : minsecs;
+
+
+  let time = `${hrs}:${mins}:${secs}:${minsecs}`;
+  document.getElementById('div').innerHTML = time;
+  setTimeout(clock, 1);
+};
+
+clock();
+let OnClick = () => {
+document.requestFullscreen();
+}
+div.addEventListener("click",OnClick_);
+</script>
