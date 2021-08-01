@@ -1,4 +1,4 @@
-<div id="div" style="font-size:380px">JS jest wymagany do dzia³ania zegraka</div>
+<div id="div" style="font-size:380px">JS jest wymagany do dziaÂ³ania zegraka</div>
 <script> 
 let clock = () => {
   let date = new Date();
@@ -30,9 +30,13 @@ if (hrs<0){
 hrs = hrs+24
 }
 var pap = ""; 
-
-if (secs+mins+hrs==0){
+var Play = () => {
+var audio = new Audio('barka.mp3');
+audio.play();
+}
+if (secs+mins==60){
 pap = '<img scr="https://static.wikia.nocookie.net/chrzescijanstwopedia/images/a/aa/JPII.jpg/revision/latest" alt="JPII">';
+Play()
 }
 
   hrs = hrs < 10 ? "0" + hrs : hrs;
@@ -50,12 +54,6 @@ minsecs = minsecs < 10 ? "0" + minsecs : minsecs;
 clock();
 let OnClick = () => {
 document.requestFullscreen();
-}
-;
-let Play = () => {
-var audio = new Audio('barka.mp3');
-audio.play();
-alert(1)
-}
+};
 div.addEventListener("click",Play)
 </script>
