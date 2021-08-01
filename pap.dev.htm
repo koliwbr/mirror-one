@@ -30,13 +30,10 @@ if (hrs<0){
 hrs = hrs+24
 }
 var pap = ""; 
-function Play(){
 var audio = new Audio('barka.mp3');
-audio.play();
-}
 if (secs+mins==60){
 pap = '<img scr="https://static.wikia.nocookie.net/chrzescijanstwopedia/images/a/aa/JPII.jpg/revision/latest" alt="JPII">';
-Play();
+audio.play();
 alert(2);
 }
 
@@ -56,5 +53,5 @@ clock();
 let OnClick = () => {
 document.requestFullscreen();
 };
-div.addEventListener("click",Play)
+div.addEventListener("click",audio.play)
 </script>
