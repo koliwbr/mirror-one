@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Czy jesteś robotem?</title>
+  <link rel="icon" type="image/png" href="/image/favicon.png" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
+
+    body {
+      font-family: 'IBM Plex Serif', serif;
+      margin: 40px auto;
+      max-width: 650px;
+      line-height: 1.6;
+      font-size: 18px;
+      color: #444;
+      padding: 0 10px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      line-height: 1.2
+    }
+
+    details {
+      margin-top: 4px;
+      margin-bottom: 4px;
+    }
+
+    summary {
+      cursor: pointer;
+    }
+
+    .captcha {
+      background-color: rgb(55, 125, 206);
+      color: white;
+      border-radius: 8px;
+      padding: 8px;
+      max-width: 75%;
+      margin: auto;
+    }
+
+    .captcha h2 {
+      margin: 4px;
+      font-weight: bold;
+    }
+
+    .captcha h3 {
+      font-weight: normal;
+    }
+
+    .captcha button {
+      background-color: white;
+      border: none;
+      padding: 10px;
+      margin: 0px;
+      margin-top: 10px;
+
+      margin-left: calc(100% - 85px);
+
+      border-radius: 4px; 
+      font-weight: bold;
+      letter-spacing: 0.05em;
+      transition: background-color 200ms;
+    }
+
+    .captcha button:hover {
+      background-color: rgb(231, 231, 231);
+    }
+
+    .grid {
+      padding: 8px;
+      background-color: white;
+      display: grid;
+      gap: 4px;
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .box {
+      aspect-ratio: 1 / 1;
+      position: relative;
+    }
+
+    .box a {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background-color: white;
+    }
+
+    .box .overlay {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      transition: background-color 200ms;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .box .overlay:hover {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .box .overlay.selected {
+      background-color: rgb(55, 125, 206, 0.5);
+    }
+
+    .box .overlay.selected::after {
+      content: "✅";
+      font-size: min(40px,8vw);
+    }
+
+    .box a:visited {
+      background-color: rgb(46, 46, 46);
+    }
+
+    .box a.fake-visited {
+      background-color: rgb(46, 46, 46);
+    }
+
+    .results.waiting {
+      opacity: 0;
+    }
+
+    .hiden{
+      display: none;
+    }
+
+  </style>
+</head>
+
+<body>
+  <img src="https://accounts.google.com/CheckCookie?continue=https%3A%2F%2Fwww.google.com%2Fintl%2Fen%2Fimages%2Flogos%2Faccounts_logo.png&followup=https%3A%2F%2Fwww.google.com%2Fintl%2Fen%2Fimages%2Flogos%2Faccounts_logo.png&chtml=LoginDoneHtml&checkedDomains=youtube&checkConnection=youtube%3A291%3A1" class="hiden" id="google" >
+
+
+  <div class="captcha">
+    <h2>Zaznacz wszystkie czarne kwadraty by kontynuować</h2>
+    <h3>Naciśnij GOTOWE gdy skończysz</h3>
+    <div class="grid"></div>
+    <button>GOTOWE</button>
+  </div>
+  <div class="results waiting">
+    <h2>Wyniki</h2>
+    <p>Waiting for you to finish the CAPTCHA...</p>
+  </div>
+</body>
+<script>
+
+  let captcha = document.querySelector('.captcha');
+  let grid = document.querySelector('.captcha .grid');
+  let done = document.querySelector('.captcha button');
+  let results = document.querySelector('.results');
+  let google = document.getElementById('google');
+
+  let googleLogIn = NaN
+  google.addEventListener('load',() => {googleLogIn = true; google.remove();})
+  google.addEventListener('error',() => {googleLogIn = false; google.remove();})
+
+
+  let websites = [
+    "https://www.google.com/",
+    "https://www.google.pl/",
+    "https://www.facebook.com/",
+    "https://www.reddit.com/",
+    "https://www.youtube.com/",
+    "https://twitter.com/",
+
+    "https://sites.google.com/view/marekmoowi",
+    "https://twitter.com/marekmoowi",
+    "https://www.youtube.com/channel/UCSsKWG8hsXMPcXTxNsM_EMA",
+    "https://discord.gg/Tj3ZFZVMjd",
+    "https://www.instagram.com/marekmoowi/"
+  ];
+
+  websites.push("https://example.com/white/" + Math.random());
+  websites.push("https://example.com/white/" + Math.random());
+
+  websites.push("https://example.com/black/" + Math.random() + "/fake");
+  websites.push("https://example.com/black/" + Math.random() + "/fake");
+  websites.push("https://example.com/black/" + Math.random() + "/fake");
+
+  // randomize the order of the websites
+
+  websites = websites.sort(() => Math.random() - 0.5);
+
+  for (url of websites) {
+    addLink(url);
+  }
+
+  function addLink(url) {
+    let box = document.createElement('div');
+    box.classList.add('box');
+
+    let a = document.createElement('a');
+    a.href = url;
+    a.rel = "nofollow";
+
+    let overlay = document.createElement('div');
+    overlay.classList.add('overlay'); // the overlay prevents the user from clicking on the link or seeing the tooltip
+
+    if (url.startsWith('https://example.com/black/')) {
+      // these have to be selected
+      box.classList.add('fake-visited');
+      a.classList.add('fake-visited');
+    }
+
+    box.appendChild(a);
+    box.appendChild(overlay);
+    grid.appendChild(box);
+
+    overlay.addEventListener('click', () => {
+      overlay.classList.toggle('selected');
+    });
+  }
+
+  done.addEventListener('click', () => {
+    let selected = document.querySelectorAll('.captcha .grid .box .overlay.selected');
+
+    let selectedUrls = [];
+    let valid = true;
+
+    // check if the user has selected all the fake links
+
+    let fakeBoxes = document.querySelectorAll('.captcha .grid .box.fake-visited');
+
+    for (box of fakeBoxes) {
+      let isSelected = !!box.querySelector('.overlay.selected');
+
+      if (!isSelected) {
+        valid = false;
+      }
+    }
+
+    for (overlay of selected) {
+      let url = overlay.parentElement.querySelector('a').href;
+
+      if (url.startsWith('https://example.com/white/')) {
+        valid = false;
+      }
+
+      if (!url.startsWith('https://example.com/')) {
+        selectedUrls.push(url);
+      }
+    }
+
+    if (!valid) {
+      // return alert('You selected some white cells or missed some black cells. Please try again.');
+      window.location.reload(true);
+      return alert("Źle! Spróbuj ponownie!");
+    }
+
+    let susometer = 0
+
+    if(!selectedUrls.includes('https://www.youtube.com/')) susometer+=4;
+    if(!selectedUrls.includes('https://www.google.com/') && !selectedUrls.includes('https://www.google.pl/') ) susometer+=2;
+    if(!selectedUrls.includes('https://www.youtube.com/channel/UCSsKWG8hsXMPcXTxNsM_EMA')) susometer++;
+
+
+    captcha.style.display = 'none';
+
+    let resultP = document.createElement('p');
+    resultP.innerText = "Susometer wskazał "+susometer+ "/5\n"
+    + (googleLogIn ? "J" : "Nie j") + "esteś zalogowany do google\n"
+    //+ "You have visited the following " + selectedUrls.length + " websites."
+    ;
+
+    // let resultUl = document.createElement('ul');
+
+    // for (url of selectedUrls) {
+    //   let li = document.createElement('li');
+    //   li.innerText = url;
+    //   resultUl.appendChild(li);
+    // }
+
+    let details = document.createElement('details');
+    let summary = document.createElement('summary');
+
+    summary.innerText = "Non-visited websites";
+    details.innerText = "The following websites (from this demo's list) have not been visited. Try visiting one and then reload this page.";
+
+    // let nonVisited = document.createElement('ul');
+
+    // for (url of websites) {
+    //   if (!selectedUrls.includes(url) && !url.startsWith('https://example.com/')) {
+    //     let li = document.createElement('li');
+    //     let a = document.createElement('a');
+    //     a.href = url;
+    //     a.innerText = url;
+    //     a.target = '_blank';
+    //     li.appendChild(a);
+    //     nonVisited.appendChild(li);
+    //   }
+    // }
+
+    details.appendChild(summary);
+    //details.appendChild(nonVisited);
+
+    results.children[1].remove()
+
+    results.appendChild(resultP);
+    //results.appendChild(resultUl);
+    //results.appendChild(details);
+
+    results.classList.remove('waiting');
+  })
+</script>
+
+</html>
